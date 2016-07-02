@@ -22,7 +22,7 @@ void Util::show_version()
 string Util::strip_slash(string str)
 {
     size_t pos = str.find_last_of('/');
-    if(pos != string::npos)
+    if(pos != string::npos && pos == str.length()-1)
     {
         return str.substr(0,pos);
     }
@@ -123,4 +123,9 @@ void Util::create_dir(string dir_name)
 string Util::get_ending(string file)
 {
     return file.substr(file.rfind('.'));
+}
+
+int Util::get_file_id(string file)
+{
+    return stoi(file.substr(0, file.find('_')));
 }

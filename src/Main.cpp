@@ -7,6 +7,8 @@
 #include <algorithm>
 #include "PdfScanner.hpp"
 #include "ZipScanner.hpp"
+#include <signal.h>
+#include <fstream>
 
 using namespace std;
 
@@ -14,11 +16,11 @@ class ImgPopper
 {
     bool _DEBUG;
     public:
-        ImgPopper(string, string, int);
+        ImgPopper(string, string, int, int);
         void set_debug(bool debug){_DEBUG = debug;};
 };
 
-ImgPopper::ImgPopper(string input_path, string output_path, int input_type)
+ImgPopper::ImgPopper(string input_path, string output_path, int input_type, int last_id)
 {
     // START STUFF
     if(input_type == Util::FILE_DIR)
@@ -37,17 +39,25 @@ ImgPopper::ImgPopper(string input_path, string output_path, int input_type)
         sort(files.begin(), files.end(), Util::dir_compare);
         for(int f = 0; f < files.size(); f++)
         {
-            string full_path = input_path + "/" + files[f];
-            int TYPE = Util::get_filetype(full_path);
-            if(TYPE == Util::FILE_PDF)
+            int file_id = Util::get_file_id(files[f]);
+            if(file_id >= last_id)
             {
-                cout << "Scanning " << full_path << endl;
-                PdfScanner(full_path, output_path);
-            }
-            else if(TYPE == Util::FILE_DOCX || TYPE == Util::FILE_PPTX)
-            {
-                cout << "Scanning " << full_path << endl;
-                ZipScanner(full_path, output_path);
+                fstream id_file;
+                id_file.open("current_id", ios::out | ios::trunc);
+                id_file << Util::get_file_id(files[f]) << endl;
+                id_file.close();
+                string full_path = input_path + "/" + files[f];
+                int TYPE = Util::get_filetype(full_path);
+                if(TYPE == Util::FILE_PDF)
+                {
+                    cout << "Scanning " << full_path << endl;
+                    PdfScanner(full_path, output_path);
+                }
+                else if(TYPE == Util::FILE_DOCX || TYPE == Util::FILE_PPTX)
+                {
+                    cout << "Scanning " << full_path << endl;
+                    ZipScanner(full_path, output_path);
+                }
             }
         }
         //cout << "Directory " << input_path << " has " << files.size() << " files." << endl;
@@ -122,7 +132,12 @@ int main(int argc, char* argv[])
             return 0;
         }
         else {
-            ImgPopper(source_path, output_path, FILETYPE);
+            fstream id_file;
+            id_file.open("current_id", ios::in);
+            string curr;
+            id_file >> curr;
+            id_file.close();
+            ImgPopper(source_path, output_path, FILETYPE, stoi(curr));
             //cout << "Source path: '" << source_path << "'" << endl
             //     << "Output path: '" << output_path << "'" << endl;
         }

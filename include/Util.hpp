@@ -22,6 +22,7 @@ class Util {
         static void create_dir(string);
         static void show_usage(string);
         static void show_version();
+        static int get_file_id(string);
 };
 
 #endif
