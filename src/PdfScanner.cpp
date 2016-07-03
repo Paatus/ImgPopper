@@ -36,8 +36,13 @@ void PdfScanner::scan(string output_dir)
             if(image_list)
             {
                 int images = g_list_length(image_list);
+                //cout << images << " images on page " << p << endl;
                 for(int i = 0; i < images; i++)
                 {
+                    if(i > 20)
+                    {
+                        break;
+                    }
                     PopplerImageMapping* img = (PopplerImageMapping*) g_list_nth(image_list, i)->data;
                     int image_id = img->image_id;
                     cairo_surface_t* img_surface = poppler_page_get_image(page_pointer, image_id);
