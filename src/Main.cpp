@@ -64,7 +64,18 @@ ImgPopper::ImgPopper(string input_path, string output_path, int input_type, int 
     }
     else
     {
-        cout << "Input file: ";
+        cout << "Input file: " << input_path << endl;
+        int TYPE = Util::get_filetype(input_path);
+        if(TYPE == Util::FILE_PDF)
+        {
+            cout << "Scanning " << input_path << endl;
+            PdfScanner(input_path, output_path);
+        }
+        else if(TYPE == Util::FILE_DOCX || TYPE == Util::FILE_PPTX)
+        {
+            cout << "Scanning " << input_path << endl;
+            ZipScanner(input_path, output_path);
+        }
     }
 }
 
@@ -131,13 +142,15 @@ int main(int argc, char* argv[])
             Util::show_usage(argv[0]);
             return 0;
         }
-        else {
+        else
+        {
             fstream id_file;
             id_file.open("current_id", ios::in);
             string curr;
             id_file >> curr;
             id_file.close();
-            ImgPopper(source_path, output_path, FILETYPE, stoi(curr));
+            //ImgPopper(source_path, output_path, FILETYPE, stoi(curr));
+            ImgPopper(source_path, output_path, FILETYPE, 1);
             //cout << "Source path: '" << source_path << "'" << endl
             //     << "Output path: '" << output_path << "'" << endl;
         }
